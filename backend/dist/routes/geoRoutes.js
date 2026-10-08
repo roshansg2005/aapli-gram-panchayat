@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const geoController_js_1 = require("../controllers/geoController.js");
+const router = (0, express_1.Router)();
+router.get('/districts', geoController_js_1.getDistricts);
+router.get('/talukas', geoController_js_1.getTalukas);
+router.get('/panchayats', geoController_js_1.getPanchayats);
+router.get('/search', geoController_js_1.searchLocations);
+exports.default = router;
