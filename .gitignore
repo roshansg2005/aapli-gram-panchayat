@@ -21,12 +21,16 @@ build/
 # Database & SQLite files
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
+*.bak
 *.sqlite
 *.sqlite3
 backend/panchayat.db
 backend/panchayat.db-journal
 backend/backups/
 backups/
+video-test/
 
 # User Uploads
 uploads/
