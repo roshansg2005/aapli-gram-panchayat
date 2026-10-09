@@ -13,7 +13,7 @@ import '../models/official_model.dart';
 import '../models/geo_model.dart';
 
 class ApiService {
-  final String _baseUrl = ApiConfig.baseUrl;
+  String get _baseUrl => ApiConfig.baseUrl;
 
   Map<String, String> get _headers => {
     'Content-Type': 'application/json',

@@ -15,7 +15,8 @@ import {
   Phone,
   Sparkles,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  ArrowLeft
 } from 'lucide-react';
 import { matchGramPanchayat } from '../../utils/jurisdiction';
 import { MobileTab } from '../../types';
@@ -132,15 +133,15 @@ export const CitizenLayout: React.FC<CitizenLayoutProps> = ({ children }) => {
 
           {/* Right Action Controls */}
           <div className="flex items-center space-x-2 shrink-0">
-            {/* Public Portal Return Button */}
+            {/* Back to Public Portal Button */}
             <button
               onClick={() => setAppMode('home')}
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white font-bold rounded-xl text-xs border border-white/20 transition-all active:scale-95"
-              title={language === 'mr' ? 'शासकीय मुख्य पोर्टलवर जा' : 'Go to Public Portal'}
+              className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white/10 hover:bg-white/20 text-slate-100 font-bold rounded-xl text-xs border border-white/20 transition-all active:scale-95 shadow-xs"
+              title={language === 'mr' ? 'शासकीय मुख्य पोर्टलवर परत जा' : 'Return to Public Portal'}
             >
-              <Home className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden md:inline font-bold">
-                {language === 'mr' ? 'मुख्य महापोर्टल' : 'Public Home'}
+              <ArrowLeft className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="font-bold">
+                {language === 'mr' ? 'मागे / मुख्य' : 'Back'}
               </span>
             </button>
 

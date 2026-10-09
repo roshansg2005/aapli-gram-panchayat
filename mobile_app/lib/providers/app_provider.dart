@@ -10,6 +10,7 @@ import '../models/official_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../config/translations.dart';
+import '../config/api_config.dart';
 
 class UniversalSearchResult {
   final String title;
@@ -107,6 +108,7 @@ class AppProvider extends ChangeNotifier {
     _startupStatusText = 'खाते पडताळणी सुरू आहे... (Checking account)';
 
     try {
+      await ApiConfig.initialize();
       _language = await StorageService.getLanguage();
       _isDarkMode = await StorageService.getDarkMode();
       _notificationsEnabled = await StorageService.getNotificationPermission();

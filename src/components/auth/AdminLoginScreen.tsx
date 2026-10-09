@@ -50,7 +50,7 @@ export const AdminLoginScreen: React.FC = () => {
     if (typeof window !== 'undefined') {
       window.history.pushState({}, '', '/');
     }
-    setAppMode('gateway');
+    setAppMode('home');
   };
 
   return (

@@ -9,6 +9,8 @@ import '../ai_assistant/ai_gram_mitra_modal.dart';
 import '../../models/user_model.dart';
 import '../../govd_app/govd_app.dart';
 import '../auth/login_screen.dart';
+import '../../config/api_config.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -483,6 +485,213 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _showServerConfigDialog(BuildContext context, AppProvider app) {
+    final isMr = app.language == 'mr';
+    final isDark = app.isDarkMode;
+    final urlController = TextEditingController(text: ApiConfig.baseUrl);
+    bool useLive = ApiConfig.isUsingLiveBackend;
+    bool isTesting = false;
+    String? testResult;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              const Icon(Icons.cloud_done_rounded, color: Color(0xFF10B981)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isMr ? 'सर्व्हर व Render API सेटिंग' : 'Server & Render API Settings',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isMr
+                      ? 'मोबाईल ॲप थेट Render Live Cloud Backend ला जोडलेले आहे:'
+                      : 'The mobile app connects to the Render Live Cloud Backend:',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: (isDark ? Colors.black26 : const Color(0xFFF1F5F9)),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          useLive ? 'Render Live Cloud Active' : 'Local Dev Server',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF10B981),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  isMr ? 'API बेस URL (Base URL):' : 'API Base URL:',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: urlController,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'monospace',
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'https://your-service.onrender.com/api',
+                    hintStyle: const TextStyle(fontSize: 11, color: Colors.grey),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    filled: true,
+                    fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    ActionChip(
+                      avatar: const Icon(Icons.cloud_rounded, size: 14, color: Colors.white),
+                      backgroundColor: const Color(0xFF10B981),
+                      label: const Text('Render Live Default', style: TextStyle(color: Colors.white, fontSize: 10)),
+                      onPressed: () {
+                        setDialogState(() {
+                          urlController.text = ApiConfig.defaultLiveUrl;
+                          useLive = true;
+                        });
+                      },
+                    ),
+                    ActionChip(
+                      avatar: const Icon(Icons.laptop_chromebook, size: 14),
+                      label: const Text('Localhost (10.0.2.2)', style: TextStyle(fontSize: 10)),
+                      onPressed: () {
+                        setDialogState(() {
+                          urlController.text = 'http://10.0.2.2:5000/api';
+                          useLive = false;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                if (testResult != null) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: testResult!.startsWith('✅') ? const Color(0xFF10B981).withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      testResult!,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: testResult!.startsWith('✅') ? const Color(0xFF10B981) : Colors.orange,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isTesting
+                  ? null
+                  : () async {
+                      setDialogState(() {
+                        isTesting = true;
+                        testResult = isMr ? 'सर्व्हर तपासत आहे...' : 'Testing connection...';
+                      });
+                      try {
+                        final pingUrl = Uri.parse('${urlController.text.trim().replaceAll(RegExp(r"/$"), "")}/geo/districts');
+                        final res = await http.get(pingUrl).timeout(const Duration(seconds: 10));
+                        setDialogState(() {
+                          isTesting = false;
+                          if (res.statusCode == 200) {
+                            testResult = isMr ? '✅ सर्व्हर यशस्वीरित्या कनेक्ट झाला!' : '✅ Connected successfully!';
+                          } else {
+                            testResult = '⚠️ HTTP Status: ${res.statusCode}';
+                          }
+                        });
+                      } catch (e) {
+                        setDialogState(() {
+                          isTesting = false;
+                          testResult = isMr ? '⚠️ कनेक्ट होऊ शकले नाही (कदाचित सर्व्हर सुरू होत आहे)' : '⚠️ Could not connect: $e';
+                        });
+                      }
+                    },
+              child: Text(isMr ? 'कनेक्शन तपासा' : 'Test Ping'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final targetUrl = urlController.text.trim();
+                await ApiConfig.setCustomBackendUrl(targetUrl);
+                await ApiConfig.setUseLiveBackend(useLive);
+                if (context.mounted) {
+                  Navigator.pop(ctx);
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isMr ? 'सर्व्हर सेटिंग जतन केली: ${ApiConfig.baseUrl}' : 'Server URL updated: ${ApiConfig.baseUrl}',
+                      ),
+                      backgroundColor: const Color(0xFF10B981),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF10B981),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text(isMr ? 'जतन करा (Save)' : 'Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppProvider>();
@@ -945,6 +1154,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF94A3B8)),
                       onTap: () => NotificationCenterModal.show(context),
+                    ),
+                    Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+
+                    // 🌐 Server Connection (Render Live Cloud vs Local)
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withOpacity(0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.cloud_sync_rounded, color: Color(0xFF10B981), size: 18),
+                      ),
+                      title: Text(
+                        isMr ? 'सर्व्हर व API कनेक्शन (Render Cloud)' : 'Server & Render Cloud API',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      subtitle: Text(
+                        ApiConfig.baseUrl,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          fontFamily: 'monospace',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF10B981)),
+                      onTap: () => _showServerConfigDialog(context, app),
                     ),
 
                     // 👑 Official Portal Link (if staff)

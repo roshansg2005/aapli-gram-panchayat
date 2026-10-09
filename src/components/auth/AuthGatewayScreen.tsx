@@ -34,7 +34,9 @@ import {
   Eye,
   EyeOff,
   Key,
-  Download
+  Download,
+  ArrowLeft,
+  X
 } from 'lucide-react';
 import { LocationSelector } from '../common/LocationSelector';
 import { MobileAppDownloadModal } from '../common/MobileAppDownloadModal';
@@ -448,8 +450,29 @@ export const AuthGatewayScreen: React.FC = () => {
         </div>
       </header>
 
+      {/* 🔙 Back / Close Navigation Bar */}
+      <div className="max-w-4xl w-full mx-auto my-3 flex items-center justify-between">
+        <button
+          onClick={() => setAppMode('home')}
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold transition-all active:scale-95 group shadow-md"
+          title={language === 'mr' ? 'मुख्य पृष्ठावर परत जा' : 'Back to Home'}
+        >
+          <ArrowLeft className="w-4 h-4 text-amber-400 group-hover:-translate-x-1 transition-transform" />
+          <span>{language === 'mr' ? '← मुख्य पृष्ठावर परत जा (Back)' : '← Back to Homepage'}</span>
+        </button>
+
+        <button
+          onClick={() => setAppMode('home')}
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-500/30 text-xs font-bold transition-all active:scale-95"
+          title={language === 'mr' ? 'लॉगिन बंद करा आणि मुख्य पृष्ठावर जा' : 'Close and return to Home'}
+        >
+          <X className="w-4 h-4 text-red-300" />
+          <span>{language === 'mr' ? 'बंद करा (Close)' : 'Close'}</span>
+        </button>
+      </div>
+
       {/* Main Authentication Card */}
-      <main className="max-w-4xl w-full mx-auto my-auto py-8">
+      <main className="max-w-4xl w-full mx-auto my-auto py-4">
         <div className="bg-white text-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
           
           {/* Top Role Selector Tabs - Public Portals Only */}
@@ -537,6 +560,13 @@ export const AuthGatewayScreen: React.FC = () => {
                       {language === 'mr' ? 'नोंदणी' : 'Register'}
                     </button>
                   </div>
+                  <button
+                    onClick={() => setAppMode('home')}
+                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-700 transition-colors"
+                    title={language === 'mr' ? 'मुख्य पृष्ठावर जा / बंद करा' : 'Close and return to Home'}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
@@ -544,6 +574,13 @@ export const AuthGatewayScreen: React.FC = () => {
                     <Lock className="w-3.5 h-3.5 text-purple-700" />
                     <span>{language === 'mr' ? 'पासवर्ड प्रवेश' : 'Password Access'}</span>
                   </span>
+                  <button
+                    onClick={() => setAppMode('home')}
+                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-700 transition-colors"
+                    title={language === 'mr' ? 'मुख्य पृष्ठावर जा / बंद करा' : 'Close and return to Home'}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
               )}
             </div>
