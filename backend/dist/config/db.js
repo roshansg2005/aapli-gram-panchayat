@@ -74,74 +74,85 @@ try {
       dbt_status TEXT DEFAULT 'pending'
     );
   `);
-    // 3. Migrate notices columns if missing
+    // 3. Migrate notices columns if table exists
     const noticeColumns = exports.db.pragma('table_info(notices)');
-    const noticeColNames = noticeColumns.map(c => c.name);
-    if (!noticeColNames.includes('gram_panchayat')) {
-        exports.db.exec('ALTER TABLE notices ADD COLUMN gram_panchayat TEXT;');
+    if (noticeColumns && noticeColumns.length > 0) {
+        const noticeColNames = noticeColumns.map(c => c.name);
+        if (!noticeColNames.includes('gram_panchayat')) {
+            exports.db.exec('ALTER TABLE notices ADD COLUMN gram_panchayat TEXT;');
+        }
+        if (!noticeColNames.includes('taluka')) {
+            exports.db.exec('ALTER TABLE notices ADD COLUMN taluka TEXT;');
+        }
+        if (!noticeColNames.includes('district')) {
+            exports.db.exec('ALTER TABLE notices ADD COLUMN district TEXT;');
+        }
+        exports.db.exec(`DELETE FROM notices WHERE gram_panchayat IS NULL OR gram_panchayat = '' OR venue LIKE '%शिवणे%';`);
     }
-    if (!noticeColNames.includes('taluka')) {
-        exports.db.exec('ALTER TABLE notices ADD COLUMN taluka TEXT;');
-    }
-    if (!noticeColNames.includes('district')) {
-        exports.db.exec('ALTER TABLE notices ADD COLUMN district TEXT;');
-    }
-    // 4. Clean out legacy mock notices that had no gram panchayat or had Shivane
-    exports.db.exec(`DELETE FROM notices WHERE gram_panchayat IS NULL OR gram_panchayat = '' OR venue LIKE '%शिवणे%';`);
-    exports.db.exec(`DELETE FROM projects WHERE gram_panchayat IS NULL OR gram_panchayat = '';`);
-    // 5. Migrate projects columns if missing
+    // 4. Migrate projects columns if missing
     const projectColumns = exports.db.pragma('table_info(projects)');
-    const projectColNames = projectColumns.map(c => c.name);
-    if (!projectColNames.includes('taluka')) {
-        exports.db.exec('ALTER TABLE projects ADD COLUMN taluka TEXT;');
+    if (projectColumns && projectColumns.length > 0) {
+        const projectColNames = projectColumns.map(c => c.name);
+        if (!projectColNames.includes('taluka')) {
+            exports.db.exec('ALTER TABLE projects ADD COLUMN taluka TEXT;');
+        }
+        if (!projectColNames.includes('district')) {
+            exports.db.exec('ALTER TABLE projects ADD COLUMN district TEXT;');
+        }
+        exports.db.exec(`DELETE FROM projects WHERE gram_panchayat IS NULL OR gram_panchayat = '';`);
     }
-    if (!projectColNames.includes('district')) {
-        exports.db.exec('ALTER TABLE projects ADD COLUMN district TEXT;');
-    }
-    // 6. Migrate tax_records columns if missing
+    // 5. Migrate tax_records columns if missing
     const taxColumns = exports.db.pragma('table_info(tax_records)');
-    const taxColNames = taxColumns.map(c => c.name);
-    if (!taxColNames.includes('tax_type')) {
-        exports.db.exec("ALTER TABLE tax_records ADD COLUMN tax_type TEXT DEFAULT 'all';");
-    }
-    if (!taxColNames.includes('created_at')) {
-        exports.db.exec('ALTER TABLE tax_records ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;');
+    if (taxColumns && taxColumns.length > 0) {
+        const taxColNames = taxColumns.map(c => c.name);
+        if (!taxColNames.includes('tax_type')) {
+            exports.db.exec("ALTER TABLE tax_records ADD COLUMN tax_type TEXT DEFAULT 'all';");
+        }
+        if (!taxColNames.includes('created_at')) {
+            exports.db.exec('ALTER TABLE tax_records ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;');
+        }
     }
     // Ensure users table has address, dob, password and is_active columns
     const userColumns = exports.db.pragma('table_info(users)');
-    const userColNames = userColumns.map(c => c.name);
-    if (!userColNames.includes('address')) {
-        exports.db.exec('ALTER TABLE users ADD COLUMN address TEXT;');
+    if (userColumns && userColumns.length > 0) {
+        const userColNames = userColumns.map(c => c.name);
+        if (!userColNames.includes('address')) {
+            exports.db.exec('ALTER TABLE users ADD COLUMN address TEXT;');
+        }
+        if (!userColNames.includes('dob')) {
+            exports.db.exec('ALTER TABLE users ADD COLUMN dob TEXT;');
+        }
+        if (!userColNames.includes('password')) {
+            exports.db.exec('ALTER TABLE users ADD COLUMN password TEXT;');
+        }
+        if (!userColNames.includes('is_active')) {
+            exports.db.exec('ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1;');
+        }
     }
-    if (!userColNames.includes('dob')) {
-        exports.db.exec('ALTER TABLE users ADD COLUMN dob TEXT;');
+    // Seed default admin if users table exists and none exists
+    if (userColumns && userColumns.length > 0) {
+        const existingAdmin = exports.db.prepare("SELECT id FROM users WHERE role = 'admin' OR email = 'admin@grampanchayat.gov.in'").get();
+        if (!existingAdmin) {
+            exports.db.prepare(`
+        INSERT INTO users (
+          id, role, name, phone, email, password, designation, employee_code, is_active, avatar_url
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+      `).run('usr-admin-01', 'admin', 'मुख्य प्रशासकीय अधिकारी (Super Admin)', '9999999999', 'admin@grampanchayat.gov.in', 'admin123', 'सिस्टीम ॲडमिनिस्ट्रेटर (System Admin)', 'ADM-HQ-001', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80');
+        }
     }
-    if (!userColNames.includes('password')) {
-        exports.db.exec('ALTER TABLE users ADD COLUMN password TEXT;');
-    }
-    if (!userColNames.includes('is_active')) {
-        exports.db.exec('ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1;');
-    }
-    // Seed default admin if none exists
-    const existingAdmin = exports.db.prepare("SELECT id FROM users WHERE role = 'admin' OR email = 'admin@grampanchayat.gov.in'").get();
-    if (!existingAdmin) {
-        exports.db.prepare(`
-      INSERT INTO users (
-        id, role, name, phone, email, password, designation, employee_code, is_active, avatar_url
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
-    `).run('usr-admin-01', 'admin', 'मुख्य प्रशासकीय अधिकारी (Super Admin)', '9999999999', 'admin@grampanchayat.gov.in', 'admin123', 'सिस्टीम ॲडमिनिस्ट्रेटर (System Admin)', 'ADM-HQ-001', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80');
-    }
-    // 7. Ensure certificates columns exist
+    // 6. Ensure certificates columns exist
     const certColumns = exports.db.pragma('table_info(certificates)');
-    const certColNames = certColumns.map(c => c.name);
-    if (!certColNames.includes('certificate_number')) {
-        exports.db.exec('ALTER TABLE certificates ADD COLUMN certificate_number TEXT;');
-    }
-    if (!certColNames.includes('processed_date')) {
-        exports.db.exec('ALTER TABLE certificates ADD COLUMN processed_date DATE;');
-    }
-    if (!certColNames.includes('details')) {
-        exports.db.exec('ALTER TABLE certificates ADD COLUMN details TEXT;');
+    if (certColumns && certColumns.length > 0) {
+        const certColNames = certColumns.map(c => c.name);
+        if (!certColNames.includes('certificate_number')) {
+            exports.db.exec('ALTER TABLE certificates ADD COLUMN certificate_number TEXT;');
+        }
+        if (!certColNames.includes('processed_date')) {
+            exports.db.exec('ALTER TABLE certificates ADD COLUMN processed_date DATE;');
+        }
+        if (!certColNames.includes('details')) {
+            exports.db.exec('ALTER TABLE certificates ADD COLUMN details TEXT;');
+        }
     }
     // 8. Ensure certificate_types table exists for dynamic certificate management and fee allocation
     exports.db.exec(`
