@@ -30,7 +30,8 @@ import {
   Smartphone,
   Key,
   Eye,
-  EyeOff
+  EyeOff,
+  Home
 } from 'lucide-react';
 import { DesktopTab, UserRole } from '../../types';
 import { getRoleConfig, MASTER_SIDEBAR_LINKS } from '../../config/rolePermissions';
@@ -444,6 +445,16 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({ children }) => {
 
           {/* Right Header Actions */}
           <div className="flex items-center space-x-3">
+            {/* Return to Public Home Portal */}
+            <button
+              onClick={() => setAppMode('home')}
+              className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-lg text-xs font-bold transition-all shadow-xs"
+              title={language === 'mr' ? 'शासकीय मुख्य पोर्टलवर जा' : 'Go to Public Portal'}
+            >
+              <Home className="w-3.5 h-3.5 text-amber-600" />
+              <span>{language === 'mr' ? 'मुख्य महापोर्टल' : 'Public Home'}</span>
+            </button>
+
             {/* Switch to Citizen Mobile View */}
             <button
               onClick={() => setAppMode('citizen-mobile')}

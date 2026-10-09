@@ -85,8 +85,12 @@ export const CitizenLayout: React.FC<CitizenLayoutProps> = ({ children }) => {
       <header className="sticky top-0 z-40 bg-gradient-to-r from-gov-navy via-slate-900 to-gov-navy text-white shadow-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
           {/* Left: Branding & Village Name */}
-          <div className="flex items-center space-x-3.5 min-w-0">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/30 shrink-0 overflow-hidden ring-2 ring-emerald-500/30">
+          <div 
+            onClick={() => setAppMode('home')}
+            className="flex items-center space-x-3.5 min-w-0 cursor-pointer group"
+            title="Go to Public Portal"
+          >
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/30 shrink-0 overflow-hidden ring-2 ring-emerald-500/30 group-hover:scale-105 transition-transform">
               <img src="/logo.png" alt="आपली ग्रामपंचायत" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0">
@@ -128,6 +132,18 @@ export const CitizenLayout: React.FC<CitizenLayoutProps> = ({ children }) => {
 
           {/* Right Action Controls */}
           <div className="flex items-center space-x-2 shrink-0">
+            {/* Public Portal Return Button */}
+            <button
+              onClick={() => setAppMode('home')}
+              className="flex items-center space-x-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white font-bold rounded-xl text-xs border border-white/20 transition-all active:scale-95"
+              title={language === 'mr' ? 'शासकीय मुख्य पोर्टलवर जा' : 'Go to Public Portal'}
+            >
+              <Home className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden md:inline font-bold">
+                {language === 'mr' ? 'मुख्य महापोर्टल' : 'Public Home'}
+              </span>
+            </button>
+
             {/* Official ERP Desk Switcher for Promoted / Staff Users */}
             {currentUser && currentUser.role !== 'citizen' && (
               <button

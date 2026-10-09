@@ -135,10 +135,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [appMode, setAppModeState] = useState<AppMode>(() => {
     const saved = localStorage.getItem('gp_appMode') as AppMode | null;
     if (saved) return saved;
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return 'citizen-mobile';
-    }
-    return 'gateway';
+    return 'home';
   });
 
   const [mobileTab, setMobileTab] = useState<MobileTab>('home');

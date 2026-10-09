@@ -1,6 +1,6 @@
 export type Language = 'mr' | 'en';
 
-export type AppMode = 'gateway' | 'citizen-mobile' | 'panchayat-desktop' | 'admin-portal' | 'admin-login';
+export type AppMode = 'home' | 'gateway' | 'citizen-mobile' | 'panchayat-desktop' | 'admin-portal' | 'admin-login';
 
 export type MobileTab = 
   | 'home' 

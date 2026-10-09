@@ -31,6 +31,7 @@ import { DesktopWardMemberDesk } from './components/desktop/DesktopWardMemberDes
 import { DesktopTalukaOversight } from './components/desktop/DesktopTalukaOversight';
 import { DesktopAdminUserManagement } from './components/desktop/DesktopAdminUserManagement';
 import { AdminLoginScreen } from './components/auth/AdminLoginScreen';
+import { PublicHomeScreen } from './components/home/PublicHomeScreen';
 
 const MainAppContent: React.FC = () => {
   const { appMode, setAppMode, mobileTab, desktopTab, setDesktopTab, currentUser, toast, isMobileScreen } = useApp();
@@ -108,8 +109,11 @@ const MainAppContent: React.FC = () => {
         {appMode === 'admin-login' ? (
           /* 🛡️ Secret Master Admin Login (Accessible only via secret URL) */
           <AdminLoginScreen />
+        ) : appMode === 'home' ? (
+          /* 🇮🇳 1. Official Government Public Home Portal (Inspired by india.gov.in) */
+          <PublicHomeScreen />
         ) : appMode === 'gateway' ? (
-          /* 1. Public Authentication Gateway: Citizen & Panchayat Staff only */
+          /* 2. Public Authentication Gateway: Citizen & Panchayat Staff only */
           <AuthGatewayScreen />
         ) : appMode === 'citizen-mobile' ? (
           /* 2. Citizen Portal: Responsive full-screen on desktop and mobile */

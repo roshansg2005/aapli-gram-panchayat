@@ -410,6 +410,16 @@ export const AuthGatewayScreen: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-2 md:space-x-3">
+          {/* 🏠 Home Button */}
+          <button
+            onClick={() => setAppMode('home')}
+            className="flex items-center space-x-1 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold transition-all active:scale-95 text-amber-300"
+            title="Go to Homepage"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{language === 'mr' ? 'मुख्य पृष्ठ' : 'Home'}</span>
+          </button>
+
           {/* 📱 Mobile App Download Button (Top Login Header) */}
           <button
             onClick={() => setShowAppDownloadModal(true)}
