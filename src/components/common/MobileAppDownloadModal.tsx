@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Smartphone, 
   Download, 
@@ -16,7 +16,8 @@ import {
   HardDrive,
   Share2,
   Copy,
-  Check
+  Check,
+  ArrowLeft
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -29,6 +30,18 @@ export const MobileAppDownloadModal: React.FC<MobileAppDownloadModalProps> = ({ 
   const { language } = useApp();
   const [downloadStarted, setDownloadStarted] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Close modal when Escape key is pressed
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -66,23 +79,69 @@ export const MobileAppDownloadModal: React.FC<MobileAppDownloadModalProps> = ({ 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-5 md:p-8 bg-slate-950/85 backdrop-blur-md flex justify-center items-start animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      {/* 🛑 1. Floating Screen-Fixed Top-Right Navigation Bar (ALWAYS visible on screen) */}
       <div 
-        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden relative animate-in zoom-in-95 duration-200"
+        className="fixed top-3 right-3 sm:top-5 sm:right-6 z-[60] flex items-center gap-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white/95 hover:bg-white text-slate-900 font-black text-xs shadow-2xl border border-slate-300 transition-all active:scale-95 group hover:border-emerald-500"
+          title={language === 'mr' ? 'मागे जा' : 'Back to website'}
+        >
+          <ArrowLeft className="w-4 h-4 text-emerald-700 group-hover:-translate-x-0.5 transition-transform" />
+          <span>{language === 'mr' ? '← मागे जा (Back)' : '← Back'}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-2xl transition-all active:scale-95 border border-red-500"
+          title={language === 'mr' ? 'खिडकी बंद करा' : 'Close window'}
+        >
+          <X className="w-4 h-4" />
+          <span>{language === 'mr' ? 'बंद करा (Close)' : 'Close'}</span>
+        </button>
+      </div>
+
+      {/* 📦 2. Main Modal Card */}
+      <div 
+        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden relative animate-in zoom-in-95 duration-200 my-auto sm:my-6"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header Gradient */}
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-6 relative">
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
-            title="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-5 sm:p-6 relative">
+          
+          {/* Header Action Bar with Back & Close Buttons */}
+          <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-white/20">
+            <button 
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs border border-white/30 transition-all active:scale-95"
+              title={language === 'mr' ? 'मागे जा' : 'Back'}
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>{language === 'mr' ? '← मागे जा (Back)' : '← Back'}</span>
+            </button>
+
+            <button 
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-500/80 hover:bg-red-600 text-white font-bold text-xs border border-white/30 transition-all active:scale-95 shadow-sm"
+              title={language === 'mr' ? 'खिडकी बंद करा' : 'Close'}
+            >
+              <X className="w-4 h-4" />
+              <span>{language === 'mr' ? 'बंद करा (Close)' : 'Close'}</span>
+            </button>
+          </div>
 
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-13 h-13 rounded-2xl bg-white p-1 flex items-center justify-center border border-white/40 shadow-md overflow-hidden ring-2 ring-emerald-400/40">
+            <div className="w-13 h-13 rounded-2xl bg-white p-1 flex items-center justify-center border border-white/40 shadow-md overflow-hidden ring-2 ring-emerald-400/40 shrink-0">
               <img src="/logo.png" alt="Aapli Grampanchayat App" className="w-full h-full object-contain" />
             </div>
             <div>
@@ -90,7 +149,7 @@ export const MobileAppDownloadModal: React.FC<MobileAppDownloadModalProps> = ({ 
                 <Sparkles className="w-3 h-3 text-amber-300" />
                 {language === 'mr' ? 'अधिकृत नागरिक मोबाईल ॲप' : 'Official Citizen Mobile App'}
               </div>
-              <h2 className="text-xl md:text-2xl font-black mt-0.5">
+              <h2 className="text-xl md:text-2xl font-black mt-0.5 leading-tight">
                 {language === 'mr' ? 'आपली ग्रामपंचायत ॲप डाउनलोड करा' : 'Download Aapli Gram Panchayat App'}
               </h2>
             </div>
@@ -103,7 +162,7 @@ export const MobileAppDownloadModal: React.FC<MobileAppDownloadModalProps> = ({ 
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           
           {/* QR Code & Direct Download Box */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-slate-50 p-5 rounded-2xl border border-slate-200">
@@ -115,7 +174,6 @@ export const MobileAppDownloadModal: React.FC<MobileAppDownloadModalProps> = ({ 
                   alt="Scan to Download Mobile App" 
                   className="w-36 h-36 object-contain rounded-lg"
                   onError={(e) => {
-                    // Fallback to SVG placeholder if offline
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -141,103 +199,94 @@ export const MobileAppDownloadModal: React.FC<MobileAppDownloadModalProps> = ({ 
                 >
                   <Download className="w-4 h-4" />
                   <span>
-                    {downloadStarted
-                      ? (language === 'mr' ? '⬇️ डाऊनलोड सुरू झाले आहे...' : '⬇️ Downloading APK...')
-                      : (language === 'mr' ? 'Android APK डाऊनलोड करा (v1.2)' : 'Download Android APK (v1.2)')}
+                    {downloadStarted 
+                      ? (language === 'mr' ? 'डाऊनलोड सुरू झाले...' : 'Downloading...') 
+                      : (language === 'mr' ? 'Android APK डाउनलोड करा (v1.2)' : 'Download Android APK (v1.2)')}
                   </span>
                 </button>
-                <div className="flex items-center justify-between text-[10px] text-slate-500 px-1 pt-0.5">
-                  <span className="flex items-center gap-1">
-                    <HardDrive className="w-3 h-3 text-slate-400" /> ५८ MB • Android 8.0+
-                  </span>
-                  <span className="flex items-center gap-1 text-emerald-600 font-bold">
-                    <ShieldCheck className="w-3 h-3" /> 100% Verified Safe
+                <div className="flex items-center justify-between text-[10px] text-slate-500 px-1 pt-1">
+                  <span>💾 ~15 MB • Android 8.0+</span>
+                  <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                    <Check className="w-3 h-3" /> 100% Verified Safe
                   </span>
                 </div>
               </div>
 
-              {/* Share & Copy Link Actions */}
-              <div className="flex items-center gap-2 pt-1">
+              {/* Share & Copy Buttons */}
+              <div className="grid grid-cols-2 gap-2 pt-1">
                 <button
                   onClick={handleShareWhatsApp}
-                  className="flex-1 py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
-                  title="Share APK Link on WhatsApp"
+                  className="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 flex items-center justify-center gap-1.5 transition-all"
                 >
                   <Share2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{language === 'mr' ? 'WhatsApp वर शेअर करा' : 'Share on WhatsApp'}</span>
+                  <span>WhatsApp वर शेअर करा</span>
                 </button>
 
                 <button
                   onClick={handleCopyLink}
-                  className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
-                  title="Copy Direct APK Download Link"
+                  className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 flex items-center justify-center gap-1.5 transition-all"
                 >
-                  {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-                  <span>{copiedLink ? (language === 'mr' ? 'कॉपी झाले!' : 'Copied!') : (language === 'mr' ? 'लिंक कॉपी' : 'Copy Link')}</span>
+                  {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedLink ? 'लिंक कॉपी झाली!' : 'लिंक कॉपी'}</span>
                 </button>
               </div>
 
-              {/* Install PWA / Web App Option */}
-              <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
-                    <Zap className="w-4 h-4" />
-                  </div>
+              {/* PWA Direct Add */}
+              <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-600 shrink-0" />
                   <div>
-                    <div className="text-xs font-bold text-slate-800">
-                      {language === 'mr' ? 'होम स्क्रीनवर जोडा (PWA)' : 'Add to Home Screen (PWA)'}
-                    </div>
-                    <div className="text-[10px] text-slate-500">
-                      {language === 'mr' ? 'कोणत्याही डाऊनलोडशिवाय त्वरित वापरा' : 'Instant use without file download'}
-                    </div>
+                    <div className="font-bold text-slate-800">होम स्क्रीनवर जोडा (PWA)</div>
+                    <div className="text-[10px] text-slate-500">कोणत्याही डाऊनलोडशिवाय त्वरित वापरा</div>
                   </div>
                 </div>
-                <button
+                <button 
                   onClick={() => {
                     alert(language === 'mr' 
-                      ? '💡 आपल्या मोबाईल ब्राऊझरच्या Menu (३ ठिपके) वर क्लिक करा आणि "Add to Home screen" किंवा "Install App" निवडा!' 
-                      : '💡 Click browser Menu (3 dots) and choose "Add to Home screen" or "Install App"!');
+                      ? 'ब्राउझरच्या तीन बिंदूंवर (⋮) क्लिक करून "Add to Home Screen" किंवा "Install App" निवडा.' 
+                      : 'Click the browser menu (⋮) and select "Add to Home screen" or "Install App".');
                   }}
-                  className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all"
+                  className="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-amber-800 font-bold text-[10px] hover:bg-amber-100 transition-colors"
                 >
-                  {language === 'mr' ? 'माहिती' : 'How?'}
+                  माहिती
                 </button>
               </div>
+
             </div>
           </div>
 
-          {/* Key Features Grid */}
-          <div>
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-3">
+          {/* Key Features Pill Grid */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
               {language === 'mr' ? '📱 मोबाईल ॲपची प्रमुख वैशिष्ट्ये' : '📱 Mobile App Key Features'}
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-1">
-                <div className="w-7 h-7 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center mx-auto">
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="p-3 rounded-xl bg-orange-50 border border-orange-100 text-center">
+                <div className="w-7 h-7 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center mx-auto mb-1">
                   <Zap className="w-3.5 h-3.5" />
                 </div>
-                <div className="text-xs font-bold text-slate-800">{language === 'mr' ? '१०-सेकंद OTP' : 'Instant OTP'}</div>
-                <div className="text-[10px] text-slate-500">{language === 'mr' ? 'सोपे व सुरक्षित लॉगिन' : 'Fast & Secure Login'}</div>
+                <div className="text-xs font-bold text-slate-800">{language === 'mr' ? '१०-सेकंद OTP' : '10s OTP'}</div>
+                <div className="text-[10px] text-slate-500">{language === 'mr' ? 'सोपे व सुरक्षित लॉगिन' : 'Quick Secure Login'}</div>
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-1">
-                <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mx-auto">
+              <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 text-center">
+                <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-1">
                   <FileText className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-xs font-bold text-slate-800">{language === 'mr' ? 'डिजिटल दाखले' : 'Digital Certs'}</div>
-                <div className="text-[10px] text-slate-500">{language === 'mr' ? 'QR सह PDF डाऊनलोड' : 'QR Verified PDFs'}</div>
+                <div className="text-[10px] text-slate-500">{language === 'mr' ? 'QR सह PDF डाउनलोड' : 'Instant PDF download'}</div>
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-1">
-                <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-center">
+                <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-1">
                   <Bell className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-xs font-bold text-slate-800">{language === 'mr' ? 'SMS व अलर्ट' : 'SMS Alerts'}</div>
-                <div className="text-[10px] text-slate-500">{language === 'mr' ? 'ग्रामसभा व नोटीस' : 'Sabha & Tax Notices'}</div>
+                <div className="text-[10px] text-slate-500">{language === 'mr' ? 'ग्रामसभा व नोटीस' : 'Gram Sabha updates'}</div>
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-1">
-                <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mx-auto">
+              <div className="p-3 rounded-xl bg-purple-50 border border-purple-100 text-center">
+                <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mx-auto mb-1">
                   <PhoneCall className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-xs font-bold text-slate-800">{language === 'mr' ? 'AI व्हॉइस कॉल' : 'Voice AI'}</div>
@@ -270,19 +319,34 @@ export const MobileAppDownloadModal: React.FC<MobileAppDownloadModalProps> = ({ 
 
         </div>
 
-        {/* Modal Footer */}
-        <div className="bg-slate-50 p-4 border-t border-slate-200 flex items-center justify-between">
+        {/* Modal Footer with Clear Back & Close Buttons */}
+        <div className="bg-slate-50 p-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>{language === 'mr' ? 'महाराष्ट्र शासन मान्यताप्राप्त डिजिटल प्लॅटफॉर्म' : 'Govt of Maharashtra E-Governance Verified'}</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="text-[11px] font-medium">{language === 'mr' ? 'महाराष्ट्र शासन मान्यताप्राप्त डिजिटल प्लॅटफॉर्म' : 'Govt of Maharashtra E-Governance Verified'}</span>
           </div>
-          <button
-            onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs transition-all"
-          >
-            {language === 'mr' ? 'बंद करा' : 'Close'}
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs transition-all active:scale-95"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>{language === 'mr' ? '← मागे जा (Back)' : '← Back'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition-all active:scale-95 shadow-sm"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>{language === 'mr' ? '✕ बंद करा (Close)' : '✕ Close'}</span>
+            </button>
+          </div>
         </div>
+
       </div>
     </div>
   );
