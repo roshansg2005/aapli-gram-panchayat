@@ -349,7 +349,7 @@ export const PublicHomeScreen: React.FC = () => {
               <div className="truncate text-slate-800 font-medium flex items-center gap-4">
                 {latestNotices.map((n, idx) => (
                   <span key={n.id || idx} className="truncate cursor-pointer hover:text-orange-700" onClick={() => handleServiceClick('notices')}>
-                    📢 {n.title} ({n.date})
+                    📢 {language === 'mr' ? n.titleMr : (n.titleEn || n.titleMr)} ({n.date})
                   </span>
                 ))}
               </div>
